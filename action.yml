@@ -20,6 +20,7 @@ inputs:
           - testPackageArn
           - testSpecArn
           - extraDataPackageArn
+          - auxiliaryApps
           NOTE: If the file specified is not found in the repo the existing Project Uploads in Device Farm will be searched for one with matching type and name.
       required: true
     artifact-types:

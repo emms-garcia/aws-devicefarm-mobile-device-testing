@@ -76,6 +76,7 @@ describe("Run", () => {
                     },
                     "configuration": {
                         "extraDataPackageArn": "app_resources/external.zip",
+                        "auxiliaryApps": ["app_resources/orchestrator.apk"],
                         "networkProfileArn": "Network",
                         "vpceConfigurationArns": ["VPCE"]
                     }
@@ -91,6 +92,7 @@ describe("Run", () => {
             "app_resources/MySampleAndroidTests.zip": "",
             "app_resources/webdriverio_spec_file.yml": "",
             "app_resources/external.zip": "",
+            "app_resources/orchestrator.apk": "",
         });
         fs.readFile.mockResolvedValue("");
         mockDeviceFarm
@@ -230,6 +232,27 @@ describe("Run", () => {
                     status: UPLOAD.STATUS.SUCCEEDED
                 }
             })
+            .on(CreateUploadCommand, {
+                projectArn: "fake-project-arn",
+                name: "1_orchestrator.apk",
+                type: "ANDROID_APP"
+            })
+            .resolvesOnce({
+                upload: {
+                    arn: "fake-upload-arn-5",
+                    url: "fake-url-5"
+                }
+            })
+            .on(GetUploadCommand, {
+                arn: "fake-upload-arn-5"
+            })
+            .resolvesOnce({
+                upload: {
+                    arn: "fake-upload-arn-5",
+                    name: "1_orchestrator.apk",
+                    status: UPLOAD.STATUS.SUCCEEDED
+                }
+            })
             .on(ScheduleRunCommand)
             .resolvesOnce({
                 run: {
@@ -317,14 +340,17 @@ describe("Run", () => {
         expect(mockDeviceFarm).toHaveReceivedCommandWith(CreateUploadCommand, {projectArn: "fake-project-arn", name: "1_MySampleAndroidTests.zip", type: "APPIUM_NODE_TEST_PACKAGE"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(CreateUploadCommand, {projectArn: "fake-project-arn", name: "1_webdriverio_spec_file.yml", type: "APPIUM_NODE_TEST_SPEC"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(CreateUploadCommand, {projectArn: "fake-project-arn", name: "1_external.zip", type: "EXTERNAL_DATA"});
+        expect(mockDeviceFarm).toHaveReceivedCommandWith(CreateUploadCommand, {projectArn: "fake-project-arn", name: "1_orchestrator.apk", type: "ANDROID_APP"});
         expect(axios.put).toHaveBeenCalledWith("fake-url-1", "", {"headers": {"Content-Type": "application/octet-stream"}});
         expect(axios.put).toHaveBeenCalledWith("fake-url-2", "", {"headers": {"Content-Type": "application/octet-stream"}});
         expect(axios.put).toHaveBeenCalledWith("fake-url-3", "", {"headers": {"Content-Type": "application/octet-stream"}});
         expect(axios.put).toHaveBeenCalledWith("fake-url-4", "", {"headers": {"Content-Type": "application/octet-stream"}});
+        expect(axios.put).toHaveBeenCalledWith("fake-url-5", "", {"headers": {"Content-Type": "application/octet-stream"}});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(GetUploadCommand, {arn: "fake-upload-arn-1"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(GetUploadCommand, {arn: "fake-upload-arn-2"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(GetUploadCommand, {arn: "fake-upload-arn-3"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(GetUploadCommand, {arn: "fake-upload-arn-4"});
+        expect(mockDeviceFarm).toHaveReceivedCommandWith(GetUploadCommand, {arn: "fake-upload-arn-5"});
         expect(mockDeviceFarm).toHaveReceivedCommandWith(ScheduleRunCommand, {
             name: "TEST RUN",
             projectArn: "fake-project-arn",
@@ -337,6 +363,7 @@ describe("Run", () => {
             },
             configuration: {
                 extraDataPackageArn: "fake-upload-arn-4",
+                auxiliaryApps: ["fake-upload-arn-5"],
                 networkProfileArn: "fake-networkProfiles-arn",
                 vpceConfigurationArns: ["fake-vpceConfiguration-arn"]
             },
@@ -366,6 +393,7 @@ describe("Run", () => {
                         "type": "APPIUM_NODE"
                     },
                     "configuration": {
+                        "auxiliaryApps": ["arn:fake-auxiliary-app-arn"],
                         "networkProfileArn": "arn:fake-networkProfiles-arn",
                         "vpceConfigurationArns": ["arn:fake-vpceConfiguration-arn"]
                     }
@@ -491,6 +519,7 @@ describe("Run", () => {
                 type: "APPIUM_NODE"
             },
             configuration: {
+                auxiliaryApps: ["arn:fake-auxiliary-app-arn"],
                 networkProfileArn: "arn:fake-networkProfiles-arn",
                 vpceConfigurationArns: ["arn:fake-vpceConfiguration-arn"]
             },

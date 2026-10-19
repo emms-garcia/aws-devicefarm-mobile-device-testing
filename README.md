@@ -270,7 +270,7 @@ This action requires the following minimum set of permissions to run an Automate
 
     In addition to supporting the value of an ARN of an existing resource, these fields support the use of a **resource name** as well. For example, if `"projectArn": "Test"` is supplied in the json file, the Action will perform a lookup in the AWS Account to find and retrieve the ARN of the AWS Device Farm Project with the name `Test`.
 
-  - `appArn`, `testPackageArn`, `testSpecArn`, `extraDataPackageArn`
+  - `appArn`, `testPackageArn`, `testSpecArn`, `extraDataPackageArn`, `auxiliaryApps`
 
     In addition to supporting the value of an ARN of an existing resource, these fields support the use of a **file path** as well. For example, if `"appArn": "dist/test.apk"` is supplied in the json file, the Action will perform an upload of the file `dist/test.apk` to the AWS Device Farm Project.
 
