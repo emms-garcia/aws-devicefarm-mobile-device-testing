@@ -72590,8 +72590,10 @@ async function run() {
         const tspProm = uploadFile(runSettings.projectArn, runSettings.test.testSpecArn, "TEST_SPEC", runSettings.test.type, uploadPollInterval);
         // Upload External Data File
         const extProm = uploadFile(runSettings.projectArn, runSettings.configuration?.extraDataPackageArn, "EXTERNAL_DATA", null, uploadPollInterval);
+        // Upload Auxiliary App Files
+        const auxProms = (runSettings.configuration?.auxiliaryApps ?? []).map(auxApp => uploadFile(runSettings.projectArn, auxApp, "APP", null, uploadPollInterval));
         startGroup("Uploading files");
-        const [appArn, tpkArn, tspArn, extArn] = await Promise.all([appProm, tpkProm, tspProm, extProm]);
+        const [appArn, tpkArn, tspArn, extArn, ...auxArns] = await Promise.all([appProm, tpkProm, tspProm, extProm, ...auxProms]);
         endGroup();
         // Set App Upload Arn
         runSettings.appArn = appArn;
@@ -72606,6 +72608,10 @@ async function run() {
         // Set External Data Upload Arn
         if (runSettings.configuration?.extraDataPackageArn) {
             runSettings.configuration.extraDataPackageArn = extArn;
+        }
+        // Set Auxiliary App Upload Arns
+        if (runSettings.configuration?.auxiliaryApps) {
+            runSettings.configuration.auxiliaryApps = auxArns;
         }
         const testRun = await scheduleRun(runSettings, runPollInterval);
         startGroup("Automated Test run details");
